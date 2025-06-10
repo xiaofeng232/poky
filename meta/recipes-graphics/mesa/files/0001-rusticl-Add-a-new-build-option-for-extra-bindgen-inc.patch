@@ -1,0 +1,57 @@
+From 705309ce727575faac44f6399463616beeafbfa0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
+ <zboszor@gmail.com>
+Date: Tue, 10 Jun 2025 15:50:08 +0200
+Subject: [PATCH] rusticl: Add a new build option for extra bindgen include
+ dirs
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Bindgen may need extra -I options when headers are not in
+the usual places, like when cross-compiling.
+
+Signed-off-by: Zoltán Böszörményi <zboszor@gmail.com>
+Upstream-Status: Submitted [https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/35435]
+---
+ meson.options                             | 7 +++++++
+ src/gallium/frontends/rusticl/meson.build | 5 +++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/meson.options b/meson.options
+index 40fe433435a..65d1c236261 100644
+--- a/meson.options
++++ b/meson.options
+@@ -787,6 +787,13 @@ option(
+   ],
+ )
+ 
++option(
++  'bindgen-includes',
++  type : 'array',
++  value : [],
++  description : 'Pass extra -I options to bindgen (if needed for cross builds).'
++)
++
+ option(
+   'mesa-clc',
+   type : 'combo',
+diff --git a/src/gallium/frontends/rusticl/meson.build b/src/gallium/frontends/rusticl/meson.build
+index 426b0a9b993..20e0d7682ea 100644
+--- a/src/gallium/frontends/rusticl/meson.build
++++ b/src/gallium/frontends/rusticl/meson.build
+@@ -106,6 +106,11 @@ rusticl_bindgen_c_args = [
+   '-fno-builtin-malloc',
+ ]
+ 
++_bindgen_includes = get_option('bindgen-includes')
++foreach _bindgen_include : _bindgen_includes
++  rusticl_bindgen_c_args += '-I' + _bindgen_include
++endforeach
++
+ cl_c_args = [
+   '-DCL_USE_DEPRECATED_OPENCL_1_0_APIS',
+   '-DCL_USE_DEPRECATED_OPENCL_1_1_APIS',
+-- 
+2.49.0
+
